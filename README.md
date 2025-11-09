@@ -1,255 +1,173 @@
-# Voice Security System - Speaker Identification & Verification
+# Resemblyzer Voice Security Demo
 
-A Python-based security system that uses voice biometrics for speaker identification and verification. Built using the Resemblyzer library for voice embeddings and deep learning-based speaker recognition.
+A clean, standalone speaker identification and verification system using **Resemblyzer** deep learning embeddings.
 
-## Features
-
-- **Speaker Registration**: Register new speakers with voice samples
-- **Speaker Verification**: Verify if a voice matches a specific registered speaker
-- **Speaker Identification**: Identify unknown speakers from registered database
-- **Access Control System**: Grant/deny access based on voice authentication
-- **Real-time Recording**: Record voice samples directly through the application
-- **GUI Interface**: User-friendly graphical interface for all operations
-- **CLI Interface**: Command-line tools for batch processing and automation
-
-## Technology Stack
-
-- **Resemblyzer**: Deep learning voice encoder for generating speaker embeddings
-- **NumPy & SciPy**: Numerical computing and signal processing
-- **LibROSA**: Audio analysis and feature extraction
-- **PyQt5**: GUI framework
-- **Click**: Command-line interface framework
-- **Matplotlib/Seaborn**: Visualization of speaker embeddings and similarities
-
-## Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/voice-security-system.git
-   cd voice-security-system
-   ```
-
-2. **Install Python dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Install system dependencies (macOS):**
-   ```bash
-   # For audio processing
-   brew install portaudio
-   pip install pyaudio
-   
-   # For GUI (optional)
-   pip install PyQt5
-   ```
-
-4. **Test installation:**
-   ```bash
-   python main.py stats
-   ```
-
-## Quick Start
-
-### 1. Register a Speaker
+## 🚀 Quick Start
 
 ```bash
-# Register a new speaker with audio samples
-python main.py register --speaker-id "john_doe" --name "John Doe" --audio-files "data/john_sample1.wav,data/john_sample2.wav"
+./start_demo.sh
 ```
 
-### 2. Verify Speaker Identity
+The browser will open automatically to **http://localhost:8000**
 
-```bash
-# Verify if an audio file matches a registered speaker
-python main.py verify --audio-file "test_audio.wav" --speaker-id "john_doe"
-```
+## 📁 What's Included
 
-### 3. Identify Unknown Speaker
-
-```bash
-# Identify speaker from audio file
-python main.py identify --audio-file "unknown_speaker.wav" --top-k 3
-```
-
-### 4. Access Control Check
-
-```bash
-# Check if speaker is authorized for access
-python main.py access-control --audio-file "access_request.wav" --authorized "john_doe,jane_smith"
-```
-
-### 5. Real-time Recording and Verification
-
-```bash
-# Record 5 seconds and verify against specific speaker
-python main.py record --duration 5 --speaker-id "john_doe"
-
-# Record and check against authorized speakers
-python main.py record --duration 5 --authorized "john_doe,jane_smith"
-```
-
-## Project Structure
+This is a minimal setup with only the essential files:
 
 ```
-voice-security-system/
-├── src/
-│   ├── voice_encoder.py        # Voice embedding generation
-│   ├── speaker_database.py     # Speaker profile management
-│   ├── speaker_verifier.py     # Verification and identification logic
-│   └── audio_utils.py          # Audio processing utilities
-├── gui/
-│   ├── main_window.py          # Main GUI application
-│   ├── registration_dialog.py  # Speaker registration interface
-│   └── verification_dialog.py  # Verification interface
+Project/
+├── resemblyzer_starter/           # Core Resemblyzer module
+│   ├── src/                       # Python modules
+│   │   ├── encoder.py            # Voice embedding generator
+│   │   ├── gallery.py            # Speaker gallery management
+│   │   └── verify.py             # Verification & identification
+│   ├── demo_frontend/            # Simple HTML demo
+│   │   └── index.html            # Single-page demo app
+│   ├── cli.py                    # Command-line interface
+│   └── .venv/                    # Python environment
+│
+├── api/
+│   └── app_resemblyzer.py        # Flask API server
+│
 ├── data/
-│   ├── voice_profiles/         # Stored speaker profiles
-│   └── test_audio/            # Test audio samples
-├── tests/
-│   └── test_*.py              # Unit tests
-├── main.py                    # CLI application entry point
-├── gui_app.py                # GUI application entry point
-└── requirements.txt          # Python dependencies
+│   ├── speaker_gallery.npz       # Speaker embeddings storage
+│   └── audio_samples/            # Audio file storage
+│
+└── start_demo.sh                 # One-command startup
 ```
 
-## Usage Examples
+## 🎯 How to Use
 
-### Python API Usage
+### 1. Start the System
+```bash
+./start_demo.sh
+```
 
-```python
-from pathlib import Path
-from src.speaker_verifier import SpeakerVerifier
+This starts:
+- Flask API with Resemblyzer on **port 5001**
+- Simple HTML frontend on **port 8000**
 
-# Initialize the system
-verifier = SpeakerVerifier(verification_threshold=0.75)
+### 2. Register a Speaker
 
-# Register a speaker
-audio_files = [Path("sample1.wav"), Path("sample2.wav")]
-verifier.register_speaker("user001", "Alice Smith", audio_files)
+1. Click **"Start Recording"** - speak clearly for 5 seconds
+2. Enter **Speaker ID** (e.g., `john_doe`)
+3. Enter **Name** (e.g., `John Doe`)
+4. Click **"Register Speaker"**
+
+Your voice embedding is computed and saved!
+
+### 3. Verify Identity (1:1)
+
+1. Record a new voice sample
+2. Select a speaker from the dropdown
+3. Click **"Verify Identity"**
+4. See your confidence score and pass/fail result
+
+### 4. Identify Speaker (1:N)
+
+1. Record a voice sample
+2. Click **"Identify Speaker"**
+3. See ranked matches with confidence scores
+
+## 🛑 Stop the System
+
+```bash
+pkill -f 'app_resemblyzer.py'
+pkill -f 'http.server 8000'
+```
+
+Or just close the terminal windows.
+
+## 🔧 Command-Line Tools
+
+You can also use the CLI directly:
+
+```bash
+# Activate environment
+source resemblyzer_starter/.venv/bin/activate
+
+# Build gallery from audio files
+PYTHONPATH=. python resemblyzer_starter/cli.py build-gallery \
+  --input /path/to/speakers \
+  --output gallery.npz
 
 # Verify a speaker
-result = verifier.verify_speaker(Path("test.wav"), "user001")
-print(f"Match: {result.is_match}, Confidence: {result.confidence}")
+PYTHONPATH=. python resemblyzer_starter/cli.py verify \
+  --gallery data/speaker_gallery.npz \
+  --speaker john_doe \
+  --test audio.wav
 
-# Identify unknown speaker
-result = verifier.identify_speaker(Path("unknown.wav"))
-if result.best_match:
-    speaker_id, name, confidence = result.best_match
-    print(f"Identified: {name} with {confidence:.2f} confidence")
+# Identify a speaker
+PYTHONPATH=. python resemblyzer_starter/cli.py identify \
+  --gallery data/speaker_gallery.npz \
+  --test audio.wav
 ```
 
-### Voice Security System Class
+## 📊 API Endpoints
 
-```python
-from main import VoiceSecuritySystem
-from pathlib import Path
+All at `http://localhost:5001/api/`
 
-# Initialize system
-system = VoiceSecuritySystem()
+- `GET /health` - Health check
+- `GET /speakers` - List registered speakers
+- `POST /speakers` - Register new speaker
+- `POST /verify` - Verify identity (1:1)
+- `POST /identify` - Identify speaker (1:N)
+- `DELETE /speakers/{id}` - Remove speaker
 
-# Register speaker
-audio_files = [Path("training1.wav"), Path("training2.wav")]
-system.register_new_speaker("emp001", "John Doe", audio_files)
+## 🎓 Features
 
-# Access control check
-authorized_speakers = ["emp001", "emp002"]
-result = system.access_control_check(Path("access_request.wav"), authorized_speakers)
+✅ **Real-time recording** - Browser-based audio capture  
+✅ **Deep learning** - 256-dimensional Resemblyzer embeddings  
+✅ **Text-independent** - Recognizes speakers regardless of what they say  
+✅ **Persistent storage** - NPZ gallery + audio files  
+✅ **Clean UI** - Single HTML page, no complex framework  
+✅ **Easy setup** - One command to start everything  
 
-if result['access_granted']:
-    print(f"✅ Access granted to {result['speaker_name']}")
-else:
-    print(f"🚫 Access denied: {result['reason']}")
-```
+## ⚙️ Configuration
 
-## Configuration
+### Thresholds
 
-### Verification Threshold
+- **Verification**: 0.75 (75% similarity required)
+- **Identification**: 0.70 (70% similarity required)
 
-The system uses a similarity threshold to determine speaker matches:
+Edit in `api/app_resemblyzer.py` to adjust.
 
-- **0.6-0.7**: More permissive (higher false acceptance rate)
-- **0.75**: Balanced (recommended default)
-- **0.8-0.9**: More strict (higher false rejection rate)
+### Audio Settings
 
-### Audio Requirements
+- **Duration**: 3-10 seconds recommended
+- **Format**: WAV, MP3, FLAC, M4A supported
+- **Sample rate**: 16kHz (automatic resampling)
 
-- **Sample Rate**: 16 kHz (automatically resampled)
-- **Format**: WAV, MP3, FLAC (automatically converted)
-- **Duration**: Minimum 1 second, recommended 3-10 seconds
-- **Quality**: Clear speech, minimal background noise
+## 🔬 How It Works
 
-## Security Considerations
+1. **Record**: Browser captures audio via Web Audio API
+2. **Encode**: Audio → Base64 → Flask API
+3. **Embed**: Resemblyzer generates 256-dim vector
+4. **Compare**: Cosine similarity against gallery
+5. **Decide**: Threshold check → verified/rejected
 
-1. **Voice Spoofing**: The current system may be vulnerable to recorded playback attacks
-2. **Background Noise**: Performance degrades with excessive noise
-3. **Voice Changes**: Temporary illness or aging may affect recognition
-4. **Multiple Samples**: Register speakers with varied samples for better robustness
+## 📝 Notes
 
-## Performance Metrics
+- First API call loads Resemblyzer model (~2-3 seconds)
+- Subsequent calls are fast (<0.5 seconds)
+- Works best with English speech
+- No GPU required (CPU-only is fine)
 
-- **Processing Speed**: ~1000x real-time on modern GPUs
-- **Memory Usage**: ~256 bytes per speaker embedding
-- **Accuracy**: 95%+ on clean audio with proper training data
-- **False Accept Rate**: <2% with threshold 0.75
-- **False Reject Rate**: <5% with threshold 0.75
+## 🆘 Troubleshooting
 
-## Troubleshooting
+**"Microphone access denied"**
+- Allow microphone in browser settings
+- Reload the page after allowing
 
-### Common Issues
+**"Connection refused"**
+- Check Flask API is running: `curl http://localhost:5001/api/health`
+- Restart with `./start_demo.sh`
 
-1. **Import errors**: Install all requirements with `pip install -r requirements.txt`
-2. **Audio not recording**: Check microphone permissions and PyAudio installation
-3. **Low accuracy**: Ensure training samples are clear and varied
-4. **Memory issues**: Use partial embeddings for long audio files
-
-### Debug Mode
-
-Enable verbose logging:
-
-```python
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Resemblyzer](https://github.com/resemble-ai/Resemblyzer) by Resemble AI for the voice encoder
-- [Real-Time Voice Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning) for the underlying research
-- LibROSA community for audio processing tools
-
-## Citation
-
-If you use this project in your research, please cite:
-
-```bibtex
-@misc{voice-security-system,
-  title={Voice Security System: Speaker Identification \& Verification},
-  author={Your Name},
-  year={2025},
-  url={https://github.com/yourusername/voice-security-system}
-}
-```
+**Low similarity scores**
+- Use quiet environment
+- Speak clearly for 5+ seconds
+- Register with multiple samples
 
 ---
 
-## Future Enhancements
-
-- [ ] Anti-spoofing mechanisms
-- [ ] Multi-language support
-- [ ] Voice activity detection
-- [ ] Noise robustness improvements
-- [ ] Mobile app integration
-- [ ] Cloud deployment options
-- [ ] Real-time streaming verification
+**Clean, simple, and powerful voice security with Resemblyzer!** 🎙️✨
