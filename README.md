@@ -1,4 +1,4 @@
-# Resemblyzer Voice Security Demo
+# Voice Security System - Speaker Identification & Verification
 
 A clean, standalone speaker identification and verification system using **Resemblyzer** deep learning embeddings.
 
